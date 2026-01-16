@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mapa de Assentos - Gestão Inteligente</title>
+    
+    <title>Projeto Aquário</title>
+    
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;900&display=swap" rel="stylesheet">
     <style>
         /* --- ESTILOS GERAIS --- */
@@ -13,17 +15,21 @@
             text-align: center; 
             padding: 20px; 
             background-color: #111; 
-            /* MUDANÇA AQUI: Usando a imagem da noite como fundo principal */
+            
+            /* COMEÇA COM A IMAGEM DA NOITE (TELA DE LOGIN) */
             background-image: url('noite.jpg'); 
+            
             background-size: cover; 
             background-position: center; 
             background-repeat: no-repeat;
-            background-attachment: fixed; /* Fixo fica melhor para paisagens */
+            background-attachment: fixed; 
             margin: 0; 
             min-height: 100vh;
+            transition: background-image 0.5s ease-in-out; /* Efeito suave na troca */
         }
 
-        h1 { font-size: 2.2rem; margin-bottom: 20px; font-weight: 800; text-shadow: 3px 3px 5px #000; }
+        /* TÍTULO PRINCIPAL GRANDE */
+        h1 { font-size: 2.5rem; margin-bottom: 20px; font-weight: 900; text-shadow: 3px 3px 6px #000; letter-spacing: 1px; }
         
         #status-bar {
             background-color: rgba(0,0,0,0.85); 
@@ -40,7 +46,7 @@
 
         #nome-usuario { font-weight: bold; font-size: 1.1rem; margin-right: 15px; }
 
-        /* --- LEGENDAS --- */
+        /* LEGENDAS */
         .legenda-box { 
             background: rgba(0,0,0,0.9); 
             padding: 10px 20px; 
@@ -54,15 +60,16 @@
         .legenda-item { display: inline-flex; align-items: center; margin: 5px 15px; font-size: 0.9rem; }
         .box-sample { width: 18px; height: 18px; margin-right: 8px; border-radius: 4px; border: 1px solid #aaa; }
 
-        /* --- BLOCOS (Layout Vertical) --- */
+        /* BLOCOS */
         .bloco-container { 
             display: block; 
             margin: 40px auto; 
-            background: rgba(0,0,0,0.7); /* Um pouco mais escuro para ler os números */
+            background: rgba(0,0,0,0.7); 
             padding: 30px; 
             border-radius: 20px;
             max-width: 700px;
             border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
         .bloco-titulo { font-size: 2rem; margin-bottom: 25px; font-weight: 900; letter-spacing: 1px; }
         
@@ -73,7 +80,7 @@
             justify-content: center; 
         }
         
-        /* --- MESAS --- */
+        /* MESAS */
         .mesa { 
             background-color: rgba(60, 60, 60, 0.95); 
             border: 2px solid #555; 
@@ -91,11 +98,11 @@
         .mesa.bloqueada { cursor: default; transform: none; }
         .mesa.bloqueada:hover { border-color: #555; }
 
-        /* BORDAS ESPECIAIS (Visíveis para Admin e Gestão) */
+        /* BORDAS */
         .borda-permitido { border: 4px solid #00ff00 !important; } 
         .borda-proibido { border: 4px solid #ff0000 !important; } 
 
-        /* Botão de Limpar (X) */
+        /* BOTÃO X */
         .btn-limpar { 
             position: absolute; top: -5px; right: -5px;
             background-color: #d32f2f; color: white; 
@@ -106,7 +113,7 @@
             display: none; z-index: 20;
         }
 
-        /* --- MENU DE CORES (POPUP) --- */
+        /* MENU CORES */
         .menu-cores { 
             display: flex; 
             position: absolute; 
@@ -128,15 +135,13 @@
         }
         .opcao-cor:hover { transform: scale(1.2); border-color: white; }
         
-        /* Cores utilitárias */
         .bg-green { background-color: #28a745; } 
         .bg-red { background-color: #dc3545; } 
         .bg-yellow { background-color: #ffc107; }
 
-        /* --- TELA DE LOGIN E LOADING (MODIFICADO) --- */
+        /* LOGIN */
         #tela-login, #tela-loading { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            /* MUDANÇA AQUI: Fundo bem mais claro (0.4) e menos desfoque (4px) */
             background: rgba(0, 0, 0, 0.4); 
             backdrop-filter: blur(4px); 
             -webkit-backdrop-filter: blur(4px);
@@ -146,9 +151,7 @@
         }
         #tela-login { display: none; } 
         
-        /* Container do formulário */
         .login-container {
-            /* Fundo do container mais transparente também */
             background: rgba(0, 0, 0, 0.5);
             padding: 40px;
             border-radius: 20px;
@@ -193,7 +196,8 @@
     </div>
 
     <div id="app-principal" style="display: none;">
-        <h1>Mapa de Assentos - Aquário</h1>
+        
+        <h1>Projeto Aquário</h1>
         
         <div id="status-bar">
             <span id="nome-usuario"></span>
@@ -232,7 +236,7 @@
 
     <script>
         // ======================================================
-        // CONFIGURAÇÃO
+        // CONFIGURAÇÃO DO GOOGLE APPS SCRIPT
         // ======================================================
         const URL_API = "https://script.google.com/macros/s/AKfycby41mDV3a-yw5HSEyRPvBg1IDEQSLqW4JE9wbcRr6I-Ou_Apb10uFPW03FwbY5vs7A9/exec"; 
         
@@ -241,16 +245,14 @@
         const mesasB3 = [60, 61, 62, 63, 64, 75, 76, 77, 78, 79, 90, 91, 92, 93, 94, 119, 118, 117, 116, 115];
 
         let dadosDB = {}; 
-        let perfilUsuario = ""; // 'admin', 'gestao', 'visitante'
+        let perfilUsuario = ""; 
 
-        // --- INICIALIZAÇÃO ---
         async function iniciarSistema() {
             try {
                 const resp = await fetch(URL_API);
                 if (!resp.ok) throw new Error("Erro HTTP");
                 dadosDB = await resp.json();
                 console.log("Dados carregados:", dadosDB);
-                
                 document.getElementById('tela-loading').style.display = 'none';
                 document.getElementById('tela-login').style.display = 'flex';
             } catch (err) {
@@ -258,15 +260,16 @@
             }
         }
 
-        // --- SISTEMA DE LOGIN ---
         function fazerLogin() {
             const u = document.getElementById('user').value.trim().toLowerCase();
             const p = document.getElementById('pass').value;
             const labelUser = document.getElementById('nome-usuario');
             const boxAdmin = document.getElementById('legenda-admin');
             const boxVisit = document.getElementById('legenda-visitante');
+            
+            // Variável de controle para saber se logou com sucesso
+            let loginSucesso = false;
 
-            // Reset
             boxAdmin.style.display = 'none';
             boxVisit.style.display = 'none';
 
@@ -275,30 +278,38 @@
                 labelUser.innerHTML = "🛠️ ADMINISTRADOR";
                 labelUser.style.color = "#4CAF50";
                 boxAdmin.style.display = 'block';
+                loginSucesso = true;
             } 
             else if (u === "gestão natura" && p === "Natura26") {
                 perfilUsuario = "gestao";
                 labelUser.innerHTML = "👤 GESTÃO NATURA";
                 labelUser.style.color = "#00bcd4";
                 boxAdmin.style.display = 'block'; 
+                loginSucesso = true;
             } 
             else if (u === "visitante" && p === "visitaae") {
                 perfilUsuario = "visitante";
                 labelUser.innerHTML = "👀 VISITANTE";
                 labelUser.style.color = "#FFC107";
                 boxVisit.style.display = 'block';
+                loginSucesso = true;
             } 
             else {
                 document.getElementById('erro-login').style.display = 'block';
-                return;
+                return; // Para aqui se errou a senha
             }
 
-            document.getElementById('tela-login').style.display = 'none';
-            document.getElementById('app-principal').style.display = 'block';
-            renderizarMesas();
+            // SE CHEGOU AQUI, O LOGIN FOI SUCESSO
+            if (loginSucesso) {
+                // TROCA O FUNDO PARA A IMAGEM DO AQUÁRIO
+                document.body.style.backgroundImage = "url('fundo.jpg')";
+                
+                document.getElementById('tela-login').style.display = 'none';
+                document.getElementById('app-principal').style.display = 'block';
+                renderizarMesas();
+            }
         }
 
-        // --- RENDERIZAÇÃO ---
         function renderizarMesas() {
             criarBloco("bloco1", mesasB1);
             criarBloco("bloco2", mesasB2);
@@ -314,62 +325,47 @@
                 mesa.className = 'mesa';
                 mesa.innerText = num;
 
-                // --- RECUPERAR DADOS ---
                 const infoAdmin = dadosDB[num];
                 const infoGestao = dadosDB["G_" + num];
 
-                // 1. COR DE FUNDO (STATUS OPERACIONAL - ADMIN)
+                // COR DE FUNDO (ADMIN/VISITANTE)
                 if (infoAdmin && infoAdmin.status !== 'LIVRE') {
                     mesa.style.backgroundColor = infoAdmin.cor;
                 }
 
-                // 2. BORDAS (REGRAS - GESTÃO)
+                // BORDAS (GESTÃO)
                 if ((perfilUsuario === 'admin' || perfilUsuario === 'gestao') && infoGestao) {
                     if (infoGestao.status === 'Permitido') mesa.classList.add('borda-permitido');
                     if (infoGestao.status === 'Proibido') mesa.classList.add('borda-proibido');
                 }
 
-                // 3. BOTÃO DE LIMPAR (X)
+                // BOTÃO DE LIMPAR (X)
                 const btnX = document.createElement('div');
                 btnX.className = 'btn-limpar';
                 btnX.innerText = 'X';
                 mesa.appendChild(btnX);
 
-                // Admin vê X se tiver cor de fundo
                 if (perfilUsuario === 'admin' && infoAdmin && infoAdmin.status !== 'LIVRE') {
                     btnX.style.display = 'block';
                 }
-                // Gestão vê X se tiver regra de gestão
                 if (perfilUsuario === 'gestao' && infoGestao && infoGestao.status !== 'LIVRE') {
                     btnX.style.display = 'block';
                 }
 
-                // 4. INTERAÇÃO
                 if (perfilUsuario === 'visitante') {
                     mesa.classList.add('bloqueada');
                 } else {
-                    // Clique no X (Apagar dados)
                     btnX.addEventListener('click', (e) => {
                         e.stopPropagation();
                         fecharMenus();
-                        
                         let key = (perfilUsuario === 'gestao') ? "G_" + num : num;
                         salvarDados(key, "transparent", "LIVRE");
-                        
                         delete dadosDB[key];
                         btnX.style.display = 'none';
-                        
-                        // Se for admin, limpa o fundo
-                        if (perfilUsuario === 'admin') {
-                            mesa.style.backgroundColor = 'rgba(60, 60, 60, 0.95)';
-                        }
-                        // Se for gestão, remove a classe da borda
-                        if (perfilUsuario === 'gestao') {
-                            mesa.classList.remove('borda-permitido', 'borda-proibido');
-                        }
+                        if (perfilUsuario === 'admin') mesa.style.backgroundColor = 'rgba(60, 60, 60, 0.95)';
+                        if (perfilUsuario === 'gestao') mesa.classList.remove('borda-permitido', 'borda-proibido');
                     });
 
-                    // Clique na Mesa (Abrir Menu)
                     mesa.addEventListener('click', (e) => {
                         e.stopPropagation();
                         if (e.target === btnX) return;
@@ -377,7 +373,6 @@
                         abrirMenu(mesa, num, btnX);
                     });
                 }
-
                 container.appendChild(mesa);
             });
         }
@@ -385,7 +380,6 @@
         function abrirMenu(elementoMesa, numero, btnX) {
             const menu = document.createElement('div');
             menu.className = 'menu-cores';
-
             let opcoes = [];
             
             if (perfilUsuario === 'gestao') {
@@ -405,36 +399,24 @@
                 const bolinha = document.createElement('div');
                 bolinha.className = 'opcao-cor ' + opt.cls;
                 bolinha.title = opt.txt;
-                
                 bolinha.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    
                     let key = (perfilUsuario === 'gestao') ? "G_" + numero : numero;
-                    
-                    // Salva no banco
                     salvarDados(key, opt.hex, opt.txt);
-                    
-                    // Atualiza memória local
                     dadosDB[key] = { cor: opt.hex, status: opt.txt };
 
-                    // ATUALIZAÇÃO VISUAL IMEDIATA
                     if (perfilUsuario === 'admin') {
-                        // Admin muda o fundo
                         elementoMesa.style.backgroundColor = opt.hex;
                     } else if (perfilUsuario === 'gestao') {
-                        // Gestão muda a borda (remove as antigas antes)
                         elementoMesa.classList.remove('borda-permitido', 'borda-proibido');
                         if (opt.txt === 'Permitido') elementoMesa.classList.add('borda-permitido');
                         if (opt.txt === 'Proibido') elementoMesa.classList.add('borda-proibido');
                     }
-                    
                     btnX.style.display = 'block';
                     fecharMenus();
                 });
-
                 menu.appendChild(bolinha);
             });
-
             elementoMesa.appendChild(menu);
         }
 
