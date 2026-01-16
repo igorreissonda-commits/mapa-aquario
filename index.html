@@ -1,4 +1,258 @@
-<script>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Projeto Aquário</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;900&display=swap" rel="stylesheet">
+    <style>
+        /* --- ESTILOS GERAIS --- */
+        body { 
+            font-family: 'Roboto', sans-serif; 
+            color: white; 
+            text-align: center; 
+            padding: 20px; 
+            background-color: #111; 
+            
+            /* COMEÇA COM A IMAGEM DA NOITE (LOGIN) */
+            /* Certifique-se que o arquivo chama 'noite.jpg' no GitHub */
+            background-image: url('noite.jpg'); 
+            
+            background-size: cover; 
+            background-position: center top; 
+            background-repeat: no-repeat;
+            
+            /* 'scroll' faz a imagem acompanhar a rolagem do mouse */
+            background-attachment: scroll; 
+            
+            margin: 0; 
+            min-height: 100vh;
+        }
+
+        /* TÍTULO PRINCIPAL */
+        h1 { font-size: 2.5rem; margin-bottom: 20px; font-weight: 900; text-shadow: 3px 3px 6px #000; letter-spacing: 1px; }
+        
+        #status-bar {
+            background-color: rgba(0,0,0,0.85); 
+            padding: 15px; 
+            border-radius: 15px; 
+            display: inline-block; 
+            margin-bottom: 30px; 
+            border: 1px solid #555;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            position: sticky;
+            top: 10px;
+            z-index: 1000;
+        }
+
+        #nome-usuario { font-weight: bold; font-size: 1.1rem; margin-right: 15px; }
+
+        /* LEGENDAS */
+        .legenda-box { 
+            background: rgba(0,0,0,0.9); 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin: 0 auto 30px auto; 
+            border: 1px solid #777; 
+            text-align: center; 
+            max-width: 900px; 
+            display: none; 
+        }
+        .legenda-titulo { display: block; margin-bottom: 10px; font-weight: bold; color: #ddd; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .legenda-grupo { display: inline-block; margin: 0 15px; } 
+        
+        .legenda-item { display: inline-flex; align-items: center; margin: 5px 10px; font-size: 0.9rem; }
+        .box-sample { width: 18px; height: 18px; margin-right: 8px; border-radius: 4px; border: 1px solid #aaa; }
+
+        /* BLOCOS */
+        .bloco-container { 
+            display: block; 
+            margin: 40px auto; 
+            background: rgba(0,0,0,0.7); 
+            padding: 30px; 
+            border-radius: 20px;
+            max-width: 700px;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        .bloco-titulo { font-size: 2rem; margin-bottom: 25px; font-weight: 900; letter-spacing: 1px; }
+        
+        .grid-mesas { 
+            display: grid; 
+            grid-template-columns: repeat(5, 1fr); 
+            gap: 15px; 
+            justify-content: center; 
+        }
+        
+        /* MESAS */
+        .mesa { 
+            background-color: rgba(60, 60, 60, 0.95); 
+            border: 2px solid #555; 
+            width: 65px; height: 65px; 
+            display: flex; align-items: center; justify-content: center; flex-direction: column; 
+            font-size: 1.3rem; font-weight: bold;
+            cursor: pointer; 
+            border-radius: 10px; 
+            position: relative; 
+            box-shadow: 3px 3px 8px rgba(0,0,0,0.6);
+            transition: transform 0.2s, border-color 0.2s;
+            margin: auto;
+        }
+        .mesa:hover { transform: scale(1.1); z-index: 10; border-color: #fff; }
+        .mesa.bloqueada { cursor: default; transform: none; }
+        .mesa.bloqueada:hover { border-color: #555; }
+
+        /* BORDAS */
+        .borda-permitido { border: 4px solid #00ff00 !important; } 
+        .borda-proibido { border: 4px solid #ff0000 !important; } 
+
+        /* BOTÃO X */
+        .btn-limpar { 
+            position: absolute; top: -5px; right: -5px;
+            background-color: #d32f2f; color: white; 
+            border: 1px solid white; 
+            width: 20px; height: 20px; 
+            font-size: 0.7rem; line-height: 18px;
+            cursor: pointer; border-radius: 50%; 
+            display: none; z-index: 20;
+        }
+
+        /* MENU CORES */
+        .menu-cores { 
+            display: flex; 
+            position: absolute; 
+            background: rgba(0,0,0,0.95); 
+            padding: 10px; 
+            border-radius: 30px; 
+            z-index: 100; 
+            top: -60px; left: 50%; transform: translateX(-50%); 
+            border: 2px solid white; 
+            box-shadow: 0 5px 20px black; 
+        }
+        .opcao-cor { 
+            width: 35px; height: 35px; 
+            margin: 0 5px; 
+            border-radius: 50%; 
+            cursor: pointer; 
+            border: 2px solid #ddd; 
+            transition: transform 0.2s; 
+        }
+        .opcao-cor:hover { transform: scale(1.2); border-color: white; }
+        
+        .bg-green { background-color: #28a745; } 
+        .bg-red { background-color: #dc3545; } 
+        .bg-yellow { background-color: #ffc107; }
+
+        /* LOGIN */
+        #tela-login, #tela-loading { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0, 0, 0, 0.4); 
+            backdrop-filter: blur(4px); 
+            -webkit-backdrop-filter: blur(4px);
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; 
+            z-index: 9999; 
+        }
+        #tela-login { display: none; } 
+        
+        .login-container {
+            /* MUDANÇA AQUI: De 0.9 para 0.6 para ficar mais claro */
+            background: rgba(0, 0, 0, 0.6);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        .input-login { 
+            padding: 15px; font-size: 1.1rem; margin-bottom: 15px; 
+            text-align: center; border-radius: 8px; border: none; width: 280px; 
+            background: rgba(255,255,255,0.95); color: #333;
+        }
+        .btn-action { 
+            padding: 12px 30px; font-size: 1rem; cursor: pointer; 
+            border-radius: 8px; border: none; font-weight: bold; 
+            transition: opacity 0.3s, transform 0.2s;
+        }
+        .btn-entrar { background-color: #4CAF50; color: white; margin-top: 10px; width: 100%; }
+        .btn-sair { background-color: #d32f2f; color: white; }
+        .btn-action:hover { opacity: 0.9; transform: scale(1.02); }
+
+    </style>
+</head>
+<body>
+
+    <div id="tela-loading">
+        <h2>Conectando ao Banco de Dados...</h2>
+        <p style="color: #fff; font-weight: bold;">Aguarde um momento.</p>
+    </div>
+
+    <div id="tela-login">
+        <div class="login-container">
+            <h2 style="margin-bottom: 25px; text-shadow: 2px 2px 4px black; font-size: 1.8rem;">Acesso Restrito</h2>
+            <input type="text" id="user" class="input-login" placeholder="Usuário">
+            <input type="password" id="pass" class="input-login" placeholder="Senha">
+            <button onclick="fazerLogin()" class="btn-action btn-entrar">ENTRAR</button>
+            <p id="erro-login" style="color: #ff6b6b; margin-top: 15px; display: none; font-weight: bold; text-shadow: 1px 1px 2px black;">Credenciais inválidas.</p>
+        </div>
+    </div>
+
+    <div id="app-principal" style="display: none;">
+        
+        <h1>Mapa de Assentos - Aquário</h1>
+        
+        <div id="status-bar">
+            <span id="nome-usuario"></span>
+            <button onclick="location.reload()" class="btn-action btn-sair" style="padding: 5px 15px; font-size: 0.8rem;">SAIR</button>
+        </div>
+
+        <div id="legenda-admin" class="legenda-box">
+            <span class="legenda-titulo" style="color: #4CAF50;">Modo de Edição</span>
+            
+            <div class="legenda-grupo" style="border-right: 1px solid #555; padding-right: 15px;">
+                <strong>Fundo (Status):</strong><br>
+                <div class="legenda-item"><div class="box-sample bg-green"></div> Formatado</div>
+                <div class="legenda-item"><div class="box-sample bg-red"></div> Não Formatado</div>
+                <div class="legenda-item"><div class="box-sample bg-yellow"></div> Sem Atendimento</div>
+            </div>
+
+            <div class="legenda-grupo">
+                <strong>Borda (Regra):</strong><br>
+                <div class="legenda-item"><div class="box-sample" style="border: 4px solid #ff0000; background: #333;"></div> Gestão PROIBIU</div>
+                <div class="legenda-item"><div class="box-sample" style="border: 4px solid #00ff00; background: #333;"></div> Gestão PERMITIU</div>
+            </div>
+        </div>
+
+        <div id="legenda-visitante" class="legenda-box">
+            <span class="legenda-titulo" style="color: #FFC107;">Legenda</span>
+            <div class="legenda-item"><div class="box-sample bg-green"></div> Formatado</div>
+            <div class="legenda-item"><div class="box-sample bg-red"></div> Não Formatado</div>
+            <div class="legenda-item"><div class="box-sample bg-yellow"></div> Sem Atendimento</div>
+        </div>
+
+        <div class="bloco-container">
+            <div class="bloco-titulo">Bloco 1</div>
+            <div class="grid-mesas" id="bloco1"></div>
+        </div>
+
+        <div class="bloco-container">
+            <div class="bloco-titulo">Bloco 2</div>
+            <div class="grid-mesas" id="bloco2"></div>
+        </div>
+
+        <div class="bloco-container">
+            <div class="bloco-titulo">Bloco 3</div>
+            <div class="grid-mesas" id="bloco3"></div>
+        </div>
+    </div>
+
+    <script>
         // ======================================================
         // CONFIGURAÇÃO
         // ======================================================
@@ -63,14 +317,14 @@
             }
 
             if (loginSucesso) {
-                // --- MUDANÇA: FORÇAR A TROCA IMEDIATAMENTE ---
+                // FORÇAR A TROCA IMEDIATAMENTE PARA O ARQUIVO fundo.jpg
                 document.body.style.backgroundImage = "url('fundo.jpg')";
 
-                // Verificador de erro (Só para te avisar se o nome estiver errado)
+                // Verificador de erro (Avisa se não achar o arquivo fundo.jpg)
                 const imgTeste = new Image();
                 imgTeste.src = 'fundo.jpg';
                 imgTeste.onerror = function() {
-                    alert("⚠️ AVISO: A imagem 'fundo.jpg' não foi encontrada no GitHub!\n\nVerifique se o nome do arquivo no GitHub está exatamente 'fundo.jpg' (tudo minúsculo).");
+                    alert("⚠️ AVISO: A imagem 'fundo.jpg' não foi encontrada no GitHub!\n\nVerifique se você renomeou o arquivo no GitHub para 'fundo.jpg' (tudo minúsculo).");
                 };
 
                 document.getElementById('tela-login').style.display = 'none';
@@ -204,3 +458,5 @@
 
         iniciarSistema();
     </script>
+</body>
+</html>
