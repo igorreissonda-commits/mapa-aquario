@@ -20,17 +20,17 @@
             background-image: url('noite.jpg'); 
             
             background-size: cover; 
-            background-position: center top; /* Alinhado ao topo */
+            background-position: center top; 
             background-repeat: no-repeat;
             
-            /* MUDANÇA AQUI: 'scroll' faz a imagem andar junto com a barra de rolagem */
+            /* CORREÇÃO 1: 'scroll' faz a imagem acompanhar a rolagem do mouse */
             background-attachment: scroll; 
             
             margin: 0; 
             min-height: 100vh;
         }
 
-        /* TÍTULO PRINCIPAL GRANDE */
+        /* TÍTULO PRINCIPAL */
         h1 { font-size: 2.5rem; margin-bottom: 20px; font-weight: 900; text-shadow: 3px 3px 6px #000; letter-spacing: 1px; }
         
         #status-bar {
@@ -51,15 +51,19 @@
         /* LEGENDAS */
         .legenda-box { 
             background: rgba(0,0,0,0.9); 
-            padding: 10px 20px; 
+            padding: 15px; 
             border-radius: 8px; 
             margin: 0 auto 30px auto; 
             border: 1px solid #777; 
             text-align: center; 
-            max-width: 800px; 
+            max-width: 900px; /* Aumentei para caber tudo */
             display: none; 
         }
-        .legenda-item { display: inline-flex; align-items: center; margin: 5px 15px; font-size: 0.9rem; }
+        .legenda-titulo { display: block; margin-bottom: 10px; font-weight: bold; color: #ddd; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .legenda-grupo { display: inline-block; margin: 0 15px; } /* Agrupar tipos de legenda */
+        
+        .legenda-item { display: inline-flex; align-items: center; margin: 5px 10px; font-size: 0.9rem; }
         .box-sample { width: 18px; height: 18px; margin-right: 8px; border-radius: 4px; border: 1px solid #aaa; }
 
         /* BLOCOS */
@@ -199,7 +203,7 @@
 
     <div id="app-principal" style="display: none;">
         
-        <h1>Projeto Aquário</h1>
+        <h1>Mapa de Assentos - Aquário</h1>
         
         <div id="status-bar">
             <span id="nome-usuario"></span>
@@ -207,14 +211,24 @@
         </div>
 
         <div id="legenda-admin" class="legenda-box">
-            <strong style="display:block; margin-bottom:10px; color: #4CAF50;">MODO DE EDIÇÃO</strong>
-            <div class="legenda-item"><div class="box-sample bg-green"></div> Fundo: Definição do Admin</div>
-            <div class="legenda-item"><div class="box-sample" style="border: 4px solid #ff0000; background: #333;"></div> Borda: Gestão PROIBIU</div>
-            <div class="legenda-item"><div class="box-sample" style="border: 4px solid #00ff00; background: #333;"></div> Borda: Gestão PERMITIU</div>
+            <span class="legenda-titulo" style="color: #4CAF50;">Modo de Edição</span>
+            
+            <div class="legenda-grupo" style="border-right: 1px solid #555; padding-right: 15px;">
+                <strong>Fundo (Status):</strong><br>
+                <div class="legenda-item"><div class="box-sample bg-green"></div> Formatado</div>
+                <div class="legenda-item"><div class="box-sample bg-red"></div> Não Formatado</div>
+                <div class="legenda-item"><div class="box-sample bg-yellow"></div> Sem Atendimento</div>
+            </div>
+
+            <div class="legenda-grupo">
+                <strong>Borda (Regra):</strong><br>
+                <div class="legenda-item"><div class="box-sample" style="border: 4px solid #ff0000; background: #333;"></div> Gestão PROIBIU</div>
+                <div class="legenda-item"><div class="box-sample" style="border: 4px solid #00ff00; background: #333;"></div> Gestão PERMITIU</div>
+            </div>
         </div>
 
         <div id="legenda-visitante" class="legenda-box">
-            <strong style="display:block; margin-bottom:10px; color: #FFC107;">VISÃO DE VISITANTE</strong>
+            <span class="legenda-titulo" style="color: #FFC107;">Legenda</span>
             <div class="legenda-item"><div class="box-sample bg-green"></div> Formatado</div>
             <div class="legenda-item"><div class="box-sample bg-red"></div> Não Formatado</div>
             <div class="legenda-item"><div class="box-sample bg-yellow"></div> Sem Atendimento</div>
