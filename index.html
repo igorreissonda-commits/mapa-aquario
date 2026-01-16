@@ -16,16 +16,18 @@
             padding: 20px; 
             background-color: #111; 
             
-            /* COMEÇA COM A IMAGEM DA NOITE (TELA DE LOGIN) */
+            /* COMEÇA COM A IMAGEM DA NOITE (LOGIN) */
             background-image: url('noite.jpg'); 
             
             background-size: cover; 
-            background-position: center; 
+            background-position: center top; /* Alinhado ao topo */
             background-repeat: no-repeat;
-            background-attachment: fixed; 
+            
+            /* MUDANÇA AQUI: 'scroll' faz a imagem andar junto com a barra de rolagem */
+            background-attachment: scroll; 
+            
             margin: 0; 
             min-height: 100vh;
-            transition: background-image 0.5s ease-in-out; /* Efeito suave na troca */
         }
 
         /* TÍTULO PRINCIPAL GRANDE */
@@ -236,7 +238,7 @@
 
     <script>
         // ======================================================
-        // CONFIGURAÇÃO DO GOOGLE APPS SCRIPT
+        // CONFIGURAÇÃO
         // ======================================================
         const URL_API = "https://script.google.com/macros/s/AKfycby41mDV3a-yw5HSEyRPvBg1IDEQSLqW4JE9wbcRr6I-Ou_Apb10uFPW03FwbY5vs7A9/exec"; 
         
@@ -267,7 +269,6 @@
             const boxAdmin = document.getElementById('legenda-admin');
             const boxVisit = document.getElementById('legenda-visitante');
             
-            // Variável de controle para saber se logou com sucesso
             let loginSucesso = false;
 
             boxAdmin.style.display = 'none';
@@ -296,14 +297,22 @@
             } 
             else {
                 document.getElementById('erro-login').style.display = 'block';
-                return; // Para aqui se errou a senha
+                return;
             }
 
-            // SE CHEGOU AQUI, O LOGIN FOI SUCESSO
             if (loginSucesso) {
-                // TROCA O FUNDO PARA A IMAGEM DO AQUÁRIO
-                document.body.style.backgroundImage = "url('fundo.jpg')";
+                // Tenta carregar a imagem de fundo
+                const imagemFundo = new Image();
+                imagemFundo.src = 'fundo.jpg';
                 
+                imagemFundo.onload = function() {
+                    document.body.style.backgroundImage = "url('fundo.jpg')";
+                };
+                
+                imagemFundo.onerror = function() {
+                    console.log("ERRO: Não encontrei a imagem fundo.jpg no GitHub!");
+                };
+
                 document.getElementById('tela-login').style.display = 'none';
                 document.getElementById('app-principal').style.display = 'block';
                 renderizarMesas();
@@ -328,18 +337,15 @@
                 const infoAdmin = dadosDB[num];
                 const infoGestao = dadosDB["G_" + num];
 
-                // COR DE FUNDO (ADMIN/VISITANTE)
                 if (infoAdmin && infoAdmin.status !== 'LIVRE') {
                     mesa.style.backgroundColor = infoAdmin.cor;
                 }
 
-                // BORDAS (GESTÃO)
                 if ((perfilUsuario === 'admin' || perfilUsuario === 'gestao') && infoGestao) {
                     if (infoGestao.status === 'Permitido') mesa.classList.add('borda-permitido');
                     if (infoGestao.status === 'Proibido') mesa.classList.add('borda-proibido');
                 }
 
-                // BOTÃO DE LIMPAR (X)
                 const btnX = document.createElement('div');
                 btnX.className = 'btn-limpar';
                 btnX.innerText = 'X';
