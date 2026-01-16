@@ -3,229 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <title>Projeto Aquário</title>
-    
+    <title>Mapa de Assentos - Aquário</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;900&display=swap" rel="stylesheet">
     <style>
         /* --- ESTILOS GERAIS --- */
         body { 
-            font-family: 'Roboto', sans-serif; 
-            color: white; 
-            text-align: center; 
-            padding: 20px; 
-            background-color: #111; 
-            
-            /* COMEÇA COM A IMAGEM DA NOITE (LOGIN) */
-            /* Certifique-se que o arquivo chama 'noite.jpg' no GitHub */
-            background-image: url('noite.jpg'); 
-            
-            background-size: cover; 
-            background-position: center top; 
-            background-repeat: no-repeat;
-            
-            /* 'scroll' faz a imagem acompanhar a rolagem do mouse */
-            background-attachment: scroll; 
-            
-            margin: 0; 
-            min-height: 100vh;
+            font-family: 'Roboto', sans-serif; color: white; text-align: center; 
+            padding: 20px; background-color: #111; 
+            background-image: url('noite.jpg'); background-size: cover; 
+            background-position: center top; background-attachment: scroll; 
+            margin: 0; min-height: 100vh;
         }
 
-        /* TÍTULO PRINCIPAL */
         h1 { font-size: 2.5rem; margin-bottom: 20px; font-weight: 900; text-shadow: 3px 3px 6px #000; letter-spacing: 1px; }
         
+        /* STATUS BAR */
         #status-bar {
-            background-color: rgba(0,0,0,0.85); 
-            padding: 15px; 
-            border-radius: 15px; 
-            display: inline-block; 
-            margin-bottom: 30px; 
-            border: 1px solid #555;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-            position: sticky;
-            top: 10px;
-            z-index: 1000;
+            background-color: rgba(0,0,0,0.85); padding: 15px; border-radius: 15px; 
+            display: inline-block; margin-bottom: 30px; border: 1px solid #555;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5); position: sticky; top: 10px; z-index: 1000;
         }
-
         #nome-usuario { font-weight: bold; font-size: 1.1rem; margin-right: 15px; }
 
         /* LEGENDAS */
         .legenda-box { 
-            background: rgba(0,0,0,0.9); 
-            padding: 15px; 
-            border-radius: 8px; 
-            margin: 0 auto 30px auto; 
-            border: 1px solid #777; 
-            text-align: center; 
-            max-width: 900px; 
-            display: none; 
+            background: rgba(0,0,0,0.9); padding: 15px; border-radius: 8px; 
+            margin: 0 auto 30px auto; border: 1px solid #777; text-align: center; 
+            max-width: 900px; display: none; 
         }
         .legenda-titulo { display: block; margin-bottom: 10px; font-weight: bold; color: #ddd; text-transform: uppercase; letter-spacing: 1px; }
-        
-        .legenda-grupo { display: inline-block; margin: 0 15px; } 
-        
+        .legenda-grupo { display: inline-block; margin: 0 15px; }
         .legenda-item { display: inline-flex; align-items: center; margin: 5px 10px; font-size: 0.9rem; }
         .box-sample { width: 18px; height: 18px; margin-right: 8px; border-radius: 4px; border: 1px solid #aaa; }
 
-        /* BLOCOS */
+        /* BLOCOS E MESAS */
         .bloco-container { 
-            display: block; 
-            margin: 40px auto; 
-            background: rgba(0,0,0,0.7); 
-            padding: 30px; 
-            border-radius: 20px;
-            max-width: 700px;
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            display: block; margin: 40px auto; background: rgba(0,0,0,0.7); 
+            padding: 30px; border-radius: 20px; max-width: 700px;
+            border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
         .bloco-titulo { font-size: 2rem; margin-bottom: 25px; font-weight: 900; letter-spacing: 1px; }
+        .grid-mesas { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; justify-content: center; }
         
-        .grid-mesas { 
-            display: grid; 
-            grid-template-columns: repeat(5, 1fr); 
-            gap: 15px; 
-            justify-content: center; 
-        }
-        
-        /* MESAS */
         .mesa { 
-            background-color: rgba(60, 60, 60, 0.95); 
-            border: 2px solid #555; 
-            width: 65px; height: 65px; 
-            display: flex; align-items: center; justify-content: center; flex-direction: column; 
-            font-size: 1.3rem; font-weight: bold;
-            cursor: pointer; 
-            border-radius: 10px; 
-            position: relative; 
-            box-shadow: 3px 3px 8px rgba(0,0,0,0.6);
-            transition: transform 0.2s, border-color 0.2s;
-            margin: auto;
+            background-color: rgba(60, 60, 60, 0.95); border: 2px solid #555; 
+            width: 65px; height: 65px; display: flex; align-items: center; justify-content: center; 
+            flex-direction: column; font-size: 1.3rem; font-weight: bold; cursor: pointer; 
+            border-radius: 10px; position: relative; box-shadow: 3px 3px 8px rgba(0,0,0,0.6);
+            transition: transform 0.2s, border-color 0.2s; margin: auto;
         }
         .mesa:hover { transform: scale(1.1); z-index: 10; border-color: #fff; }
         .mesa.bloqueada { cursor: default; transform: none; }
         .mesa.bloqueada:hover { border-color: #555; }
-
-        /* BORDAS */
         .borda-permitido { border: 4px solid #00ff00 !important; } 
         .borda-proibido { border: 4px solid #ff0000 !important; } 
 
         /* BOTÃO X */
         .btn-limpar { 
-            position: absolute; top: -5px; right: -5px;
-            background-color: #d32f2f; color: white; 
-            border: 1px solid white; 
-            width: 20px; height: 20px; 
-            font-size: 0.7rem; line-height: 18px;
-            cursor: pointer; border-radius: 50%; 
+            position: absolute; top: -5px; right: -5px; background-color: #d32f2f; 
+            color: white; border: 1px solid white; width: 20px; height: 20px; 
+            font-size: 0.7rem; line-height: 18px; cursor: pointer; border-radius: 50%; 
             display: none; z-index: 20;
         }
 
         /* MENU CORES */
         .menu-cores { 
-            display: flex; 
-            position: absolute; 
-            background: rgba(0,0,0,0.95); 
-            padding: 10px; 
-            border-radius: 30px; 
-            z-index: 100; 
-            top: -60px; left: 50%; transform: translateX(-50%); 
-            border: 2px solid white; 
-            box-shadow: 0 5px 20px black; 
+            display: flex; position: absolute; background: rgba(0,0,0,0.95); padding: 10px; 
+            border-radius: 30px; z-index: 100; top: -60px; left: 50%; transform: translateX(-50%); 
+            border: 2px solid white; box-shadow: 0 5px 20px black; 
         }
         .opcao-cor { 
-            width: 35px; height: 35px; 
-            margin: 0 5px; 
-            border-radius: 50%; 
-            cursor: pointer; 
-            border: 2px solid #ddd; 
-            transition: transform 0.2s; 
+            width: 35px; height: 35px; margin: 0 5px; border-radius: 50%; cursor: pointer; 
+            border: 2px solid #ddd; transition: transform 0.2s; 
         }
         .opcao-cor:hover { transform: scale(1.2); border-color: white; }
-        
-        .bg-green { background-color: #28a745; } 
-        .bg-red { background-color: #dc3545; } 
-        .bg-yellow { background-color: #ffc107; }
+        .bg-green { background-color: #28a745; } .bg-red { background-color: #dc3545; } .bg-yellow { background-color: #ffc107; }
 
-        /* LOGIN */
-        #tela-login, #tela-loading { 
+        /* TELAS (LOGIN, LOADING, SOLICITAÇÃO) */
+        #tela-login, #tela-loading, #tela-solicitacao { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            
-            /* MUDEI AQUI: De 0.4 para 0.0 (Fica totalmente transparente, imagem 100% clara) */
-            background: rgba(0, 0, 0, 0.0); 
-            
-            backdrop-filter: blur(0px); 
-            -webkit-backdrop-filter: blur(0px);
-            
-            display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; 
-            z-index: 9999; 
+            background: rgba(0, 0, 0, 0.0); backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px);
+            display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; 
         }
         #tela-login { display: none; } 
-        
+        #tela-solicitacao { display: none; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); }
+
         .login-container {
-            /* MUDANÇA AQUI: De 0.9 para 0.6 para ficar mais claro */
-            background: rgba(0, 0, 0, 0.6);
-            padding: 40px;
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.3);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.6); padding: 40px; border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.3); display: flex; flex-direction: column;
+            align-items: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); width: 320px;
         }
 
         .input-login { 
-            padding: 15px; font-size: 1.1rem; margin-bottom: 15px; 
-            text-align: center; border-radius: 8px; border: none; width: 280px; 
+            padding: 15px; font-size: 1.1rem; margin-bottom: 15px; text-align: center; 
+            border-radius: 8px; border: none; width: 100%; box-sizing: border-box;
             background: rgba(255,255,255,0.95); color: #333;
         }
         .btn-action { 
-            padding: 12px 30px; font-size: 1rem; cursor: pointer; 
-            border-radius: 8px; border: none; font-weight: bold; 
-            transition: opacity 0.3s, transform 0.2s;
+            padding: 12px 30px; font-size: 1rem; cursor: pointer; border-radius: 8px; 
+            border: none; font-weight: bold; transition: opacity 0.3s, transform 0.2s; width: 100%;
         }
-        .btn-entrar { background-color: #4CAF50; color: white; margin-top: 10px; width: 100%; }
-        .btn-sair { background-color: #d32f2f; color: white; }
-        .btn-action:hover { opacity: 0.9; transform: scale(1.02); }
+        .btn-entrar { background-color: #4CAF50; color: white; margin-top: 10px; }
+        .btn-cancelar { background-color: #666; color: white; margin-top: 10px; }
+        .btn-sair { background-color: #d32f2f; color: white; width: auto; }
+
+        .link-solicitar {
+            margin-top: 20px; color: #bbb; cursor: pointer; font-size: 0.9rem; text-decoration: underline;
+        }
+        .link-solicitar:hover { color: white; }
+        .msg-feedback { margin-top: 15px; font-weight: bold; display: none; text-shadow: 1px 1px 2px black; }
 
     </style>
 </head>
 <body>
 
     <div id="tela-loading">
-        <h2>Conectando ao Banco de Dados...</h2>
-        <p style="color: #fff; font-weight: bold;">Aguarde um momento.</p>
+        <h2>Conectando ao Sistema...</h2>
+        <p>Aguarde um momento.</p>
+    </div>
+
+    <div id="tela-solicitacao">
+        <div class="login-container">
+            <h2 style="margin-bottom: 20px;">Solicitar Acesso</h2>
+            <p style="font-size: 0.85rem; margin-bottom: 15px; color: #ccc;">O administrador receberá seu pedido por e-mail.</p>
+            <input type="text" id="sol-nome" class="input-login" placeholder="Nome Completo">
+            <input type="email" id="sol-email" class="input-login" placeholder="E-mail Natura">
+            <button onclick="enviarSolicitacao()" class="btn-action btn-entrar" id="btn-sol-enviar">ENVIAR PEDIDO</button>
+            <button onclick="fecharSolicitacao()" class="btn-action btn-cancelar">VOLTAR</button>
+            <p id="msg-sol" class="msg-feedback" style="color: #4CAF50;"></p>
+        </div>
     </div>
 
     <div id="tela-login">
         <div class="login-container">
-            <h2 style="margin-bottom: 25px; text-shadow: 2px 2px 4px black; font-size: 1.8rem;">Acesso Restrito</h2>
+            <h2 style="margin-bottom: 25px;">Acesso Restrito</h2>
             <input type="text" id="user" class="input-login" placeholder="Usuário">
             <input type="password" id="pass" class="input-login" placeholder="Senha">
-            <button onclick="fazerLogin()" class="btn-action btn-entrar">ENTRAR</button>
-            <p id="erro-login" style="color: #ff6b6b; margin-top: 15px; display: none; font-weight: bold; text-shadow: 1px 1px 2px black;">Credenciais inválidas.</p>
+            <button onclick="fazerLogin()" class="btn-action btn-entrar" id="btn-login-main">ENTRAR</button>
+            <p class="link-solicitar" onclick="abrirSolicitacao()">Não tem acesso? Clique aqui</p>
+            <p id="erro-login" class="msg-feedback" style="color: #ff6b6b;"></p>
         </div>
     </div>
 
     <div id="app-principal" style="display: none;">
-        
         <h1>Mapa de Assentos - Aquário</h1>
         
         <div id="status-bar">
             <span id="nome-usuario"></span>
-            <button onclick="location.reload()" class="btn-action btn-sair" style="padding: 5px 15px; font-size: 0.8rem;">SAIR</button>
+            <button onclick="location.reload()" class="btn-action btn-sair">SAIR</button>
         </div>
 
         <div id="legenda-admin" class="legenda-box">
             <span class="legenda-titulo" style="color: #4CAF50;">Modo de Edição</span>
-            
             <div class="legenda-grupo" style="border-right: 1px solid #555; padding-right: 15px;">
                 <strong>Fundo (Status):</strong><br>
                 <div class="legenda-item"><div class="box-sample bg-green"></div> Formatado</div>
                 <div class="legenda-item"><div class="box-sample bg-red"></div> Não Formatado</div>
                 <div class="legenda-item"><div class="box-sample bg-yellow"></div> Sem Atendimento</div>
             </div>
-
             <div class="legenda-grupo">
                 <strong>Borda (Regra):</strong><br>
                 <div class="legenda-item"><div class="box-sample" style="border: 4px solid #ff0000; background: #333;"></div> Gestão PROIBIU</div>
@@ -240,28 +175,15 @@
             <div class="legenda-item"><div class="box-sample bg-yellow"></div> Sem Atendimento</div>
         </div>
 
-        <div class="bloco-container">
-            <div class="bloco-titulo">Bloco 1</div>
-            <div class="grid-mesas" id="bloco1"></div>
-        </div>
-
-        <div class="bloco-container">
-            <div class="bloco-titulo">Bloco 2</div>
-            <div class="grid-mesas" id="bloco2"></div>
-        </div>
-
-        <div class="bloco-container">
-            <div class="bloco-titulo">Bloco 3</div>
-            <div class="grid-mesas" id="bloco3"></div>
-        </div>
+        <div class="bloco-container"><div class="bloco-titulo">Bloco 1</div><div class="grid-mesas" id="bloco1"></div></div>
+        <div class="bloco-container"><div class="bloco-titulo">Bloco 2</div><div class="grid-mesas" id="bloco2"></div></div>
+        <div class="bloco-container"><div class="bloco-titulo">Bloco 3</div><div class="grid-mesas" id="bloco3"></div></div>
     </div>
 
     <script>
-        // ======================================================
-        // CONFIGURAÇÃO
-        // ======================================================
-        const URL_API = "https://script.google.com/a/macros/natura.net/s/AKfycbxj6-wm2HXzDgsMZ09fXwU8cNyRQBEHMmTLFOPdp_E49kXj51NEkNsTLbgQ6ojdXUKn/exec";
-        
+        // CONFIGURAÇÃO DA API
+        const URL_API = "https://script.google.com/a/macros/natura.net/s/AKfycbxj6-wm2HXzDgsMZ09fXwU8cNyRQBEHMmTLFOPdp_E49kXj51NEkNsTLbgQ6ojdXUKn/exec"; 
+
         const mesasB1 = [70, 71, 72, 73, 74, 85, 86, 87, 88, 89, 100, 101, 102, 103, 104, 109, 108, 107, 106, 105];
         const mesasB2 = [65, 66, 67, 68, 69, 80, 81, 82, 83, 84, 95, 96, 97, 98, 99, 114, 113, 112, 111, 110];
         const mesasB3 = [60, 61, 62, 63, 64, 75, 76, 77, 78, 79, 90, 91, 92, 93, 94, 119, 118, 117, 116, 115];
@@ -272,71 +194,92 @@
         async function iniciarSistema() {
             try {
                 const resp = await fetch(URL_API);
-                if (!resp.ok) throw new Error("Erro HTTP");
                 dadosDB = await resp.json();
-                console.log("Dados carregados:", dadosDB);
                 document.getElementById('tela-loading').style.display = 'none';
                 document.getElementById('tela-login').style.display = 'flex';
             } catch (err) {
-                alert("Erro ao conectar na planilha. Tente atualizar a página.");
+                console.error(err);
+                document.getElementById('tela-loading').innerHTML = "<h2>Erro ao conectar à rede Natura.</h2><p>Verifique se você está logado no e-mail corporativo.</p>";
             }
         }
 
-        function fazerLogin() {
-            const u = document.getElementById('user').value.trim().toLowerCase();
+        // --- FUNÇÕES DE SOLICITAÇÃO ---
+        function abrirSolicitacao() {
+            document.getElementById('tela-login').style.display = 'none';
+            document.getElementById('tela-solicitacao').style.display = 'flex';
+        }
+        function fecharSolicitacao() {
+            document.getElementById('tela-solicitacao').style.display = 'none';
+            document.getElementById('tela-login').style.display = 'flex';
+        }
+
+        async function enviarSolicitacao() {
+            const nome = document.getElementById('sol-nome').value;
+            const email = document.getElementById('sol-email').value;
+            const btn = document.getElementById('btn-sol-enviar');
+            const msg = document.getElementById('msg-sol');
+
+            if (!nome || !email) { alert("Preencha todos os campos!"); return; }
+            btn.disabled = true; btn.innerText = "ENVIANDO...";
+
+            try {
+                await fetch(URL_API, {
+                    method: "POST",
+                    mode: "no-cors",
+                    body: JSON.stringify({ action: "solicitar", nome: nome, email: email })
+                });
+                msg.innerText = "Pedido enviado! Verifique seu e-mail em breve.";
+                msg.style.display = "block";
+                setTimeout(fecharSolicitacao, 3000);
+            } catch (e) {
+                alert("Erro ao enviar. Tente novamente.");
+                btn.disabled = false; btn.innerText = "ENVIAR PEDIDO";
+            }
+        }
+
+        // --- FUNÇÃO DE LOGIN ---
+        async function fazerLogin() {
+            const u = document.getElementById('user').value.trim();
             const p = document.getElementById('pass').value;
-            const labelUser = document.getElementById('nome-usuario');
-            const boxAdmin = document.getElementById('legenda-admin');
-            const boxVisit = document.getElementById('legenda-visitante');
-            
-            let loginSucesso = false;
+            const btn = document.getElementById('btn-login-main');
+            const erro = document.getElementById('erro-login');
 
-            boxAdmin.style.display = 'none';
-            boxVisit.style.display = 'none';
+            if(!u || !p) return;
+            btn.disabled = true; btn.innerText = "VERIFICANDO...";
+            erro.style.display = 'none';
 
+            // Simulação de login fixa enquanto você não cadastra na aba Usuarios
+            // (O sistema já está pronto para aceitar o login via planilha se você quiser ativar depois)
             if (u === "admin" && p === "Sogodajuda") {
-                perfilUsuario = "admin";
-                labelUser.innerHTML = "🛠️ ADMINISTRADOR";
-                labelUser.style.color = "#4CAF50";
-                boxAdmin.style.display = 'block';
-                loginSucesso = true;
-            } 
-            else if (u === "gestão natura" && p === "Natura26") {
-                perfilUsuario = "gestao";
-                labelUser.innerHTML = "👤 GESTÃO NATURA";
-                labelUser.style.color = "#00bcd4";
-                boxAdmin.style.display = 'block'; 
-                loginSucesso = true;
-            } 
-            else if (u === "visitante" && p === "visitaae") {
-                perfilUsuario = "visitante";
-                labelUser.innerHTML = "👀 VISITANTE";
-                labelUser.style.color = "#FFC107";
-                boxVisit.style.display = 'block';
-                loginSucesso = true;
-            } 
-            else {
-                document.getElementById('erro-login').style.display = 'block';
-                return;
-            }
-
-            if (loginSucesso) {
-                // FORÇAR A TROCA IMEDIATAMENTE PARA O ARQUIVO fundo.jpg
-                document.body.style.backgroundImage = "url('fundo.jpg')";
-
-                // Verificador de erro (Avisa se não achar o arquivo fundo.jpg)
-                const imgTeste = new Image();
-                imgTeste.src = 'fundo.jpg';
-                imgTeste.onerror = function() {
-                    alert("⚠️ AVISO: A imagem 'fundo.jpg' não foi encontrada no GitHub!\n\nVerifique se você renomeou o arquivo no GitHub para 'fundo.jpg' (tudo minúsculo).");
-                };
-
-                document.getElementById('tela-login').style.display = 'none';
-                document.getElementById('app-principal').style.display = 'block';
-                renderizarMesas();
+                entrarNoSistema("🛠️ ADMINISTRADOR", "admin", "#4CAF50");
+            } else if (u === "gestao" && p === "Natura26") {
+                entrarNoSistema("👤 GESTÃO", "gestao", "#00bcd4");
+            } else {
+                erro.innerText = "Usuário ou senha incorretos.";
+                erro.style.display = "block";
+                btn.disabled = false; btn.innerText = "ENTRAR";
             }
         }
 
+        function entrarNoSistema(nome, perfil, cor) {
+            perfilUsuario = perfil;
+            const label = document.getElementById('nome-usuario');
+            label.innerText = nome;
+            label.style.color = cor;
+
+            if (perfil === 'admin' || perfil === 'gestao') {
+                document.getElementById('legenda-admin').style.display = 'block';
+            } else {
+                document.getElementById('legenda-visitante').style.display = 'block';
+            }
+
+            document.getElementById('tela-login').style.display = 'none';
+            document.getElementById('app-principal').style.display = 'block';
+            document.body.style.backgroundImage = "url('fundo.jpg')";
+            renderizarMesas();
+        }
+
+        // --- RENDERIZAÇÃO DO MAPA ---
         function renderizarMesas() {
             criarBloco("bloco1", mesasB1);
             criarBloco("bloco2", mesasB2);
@@ -346,7 +289,6 @@
         function criarBloco(idDiv, listaMesas) {
             const container = document.getElementById(idDiv);
             container.innerHTML = "";
-
             listaMesas.forEach(num => {
                 const mesa = document.createElement('div');
                 mesa.className = 'mesa';
@@ -355,117 +297,86 @@
                 const infoAdmin = dadosDB[num];
                 const infoGestao = dadosDB["G_" + num];
 
-                if (infoAdmin && infoAdmin.status !== 'LIVRE') {
-                    mesa.style.backgroundColor = infoAdmin.cor;
-                }
-
+                if (infoAdmin && infoAdmin.status !== 'LIVRE') mesa.style.backgroundColor = infoAdmin.cor;
                 if ((perfilUsuario === 'admin' || perfilUsuario === 'gestao') && infoGestao) {
                     if (infoGestao.status === 'Permitido') mesa.classList.add('borda-permitido');
                     if (infoGestao.status === 'Proibido') mesa.classList.add('borda-proibido');
                 }
 
                 const btnX = document.createElement('div');
-                btnX.className = 'btn-limpar';
-                btnX.innerText = 'X';
+                btnX.className = 'btn-limpar'; btnX.innerText = 'X';
                 mesa.appendChild(btnX);
 
-                if (perfilUsuario === 'admin' && infoAdmin && infoAdmin.status !== 'LIVRE') {
-                    btnX.style.display = 'block';
-                }
-                if (perfilUsuario === 'gestao' && infoGestao && infoGestao.status !== 'LIVRE') {
-                    btnX.style.display = 'block';
-                }
+                if (perfilUsuario === 'admin' && infoAdmin && infoAdmin.status !== 'LIVRE') btnX.style.display = 'block';
+                if (perfilUsuario === 'gestao' && infoGestao && infoGestao.status !== 'LIVRE') btnX.style.display = 'block';
 
-                if (perfilUsuario === 'visitante') {
-                    mesa.classList.add('bloqueada');
-                } else {
-                    btnX.addEventListener('click', (e) => {
+                if (perfilUsuario !== 'visitante') {
+                    btnX.onclick = (e) => {
                         e.stopPropagation();
-                        fecharMenus();
                         let key = (perfilUsuario === 'gestao') ? "G_" + num : num;
                         salvarDados(key, "transparent", "LIVRE");
                         delete dadosDB[key];
                         btnX.style.display = 'none';
-                        if (perfilUsuario === 'admin') mesa.style.backgroundColor = 'rgba(60, 60, 60, 0.95)';
+                        if (perfilUsuario === 'admin') mesa.style.backgroundColor = 'rgba(60,60,60,0.95)';
                         if (perfilUsuario === 'gestao') mesa.classList.remove('borda-permitido', 'borda-proibido');
-                    });
-
-                    mesa.addEventListener('click', (e) => {
+                    };
+                    mesa.onclick = (e) => {
                         e.stopPropagation();
-                        if (e.target === btnX) return;
-                        fecharMenus();
                         abrirMenu(mesa, num, btnX);
-                    });
+                    };
+                } else {
+                    mesa.classList.add('bloqueada');
                 }
                 container.appendChild(mesa);
             });
         }
 
         function abrirMenu(elementoMesa, numero, btnX) {
+            fecharMenus();
             const menu = document.createElement('div');
             menu.className = 'menu-cores';
             let opcoes = [];
             
             if (perfilUsuario === 'gestao') {
-                opcoes = [
-                    { cls: 'bg-green', hex: '#28a745', txt: 'Permitido' },
-                    { cls: 'bg-red', hex: '#dc3545', txt: 'Proibido' }
-                ];
-            } else if (perfilUsuario === 'admin') {
-                opcoes = [
-                    { cls: 'bg-green', hex: '#28a745', txt: 'Formatado' },
-                    { cls: 'bg-red', hex: '#dc3545', txt: 'Não formatado' },
-                    { cls: 'bg-yellow', hex: '#ffc107', txt: 'Sem Atendimento' }
-                ];
+                opcoes = [{ hex: '#28a745', txt: 'Permitido' }, { hex: '#dc3545', txt: 'Proibido' }];
+            } else {
+                opcoes = [{ hex: '#28a745', txt: 'Formatado' }, { hex: '#dc3545', txt: 'Não formatado' }, { hex: '#ffc107', txt: 'Sem Atendimento' }];
             }
 
             opcoes.forEach(opt => {
                 const bolinha = document.createElement('div');
-                bolinha.className = 'opcao-cor ' + opt.cls;
-                bolinha.title = opt.txt;
-                bolinha.addEventListener('click', (e) => {
+                bolinha.className = 'opcao-cor';
+                bolinha.style.backgroundColor = opt.hex;
+                bolinha.onclick = (e) => {
                     e.stopPropagation();
                     let key = (perfilUsuario === 'gestao') ? "G_" + numero : numero;
                     salvarDados(key, opt.hex, opt.txt);
                     dadosDB[key] = { cor: opt.hex, status: opt.txt };
-
-                    if (perfilUsuario === 'admin') {
-                        elementoMesa.style.backgroundColor = opt.hex;
-                    } else if (perfilUsuario === 'gestao') {
+                    if (perfilUsuario === 'admin') elementoMesa.style.backgroundColor = opt.hex;
+                    else {
                         elementoMesa.classList.remove('borda-permitido', 'borda-proibido');
-                        if (opt.txt === 'Permitido') elementoMesa.classList.add('borda-permitido');
-                        if (opt.txt === 'Proibido') elementoMesa.classList.add('borda-proibido');
+                        elementoMesa.classList.add(opt.txt === 'Permitido' ? 'borda-permitido' : 'borda-proibido');
                     }
                     btnX.style.display = 'block';
                     fecharMenus();
-                });
+                };
                 menu.appendChild(bolinha);
             });
             elementoMesa.appendChild(menu);
         }
 
         function salvarDados(key, cor, status) {
-            dadosDB[key] = { cor: cor, status: status };
             fetch(URL_API, {
                 method: "POST",
                 mode: "no-cors",
-                body: JSON.stringify({ mesa: key, cor: cor, status: status }),
-                headers: { "Content-Type": "application/json" }
-            }).catch(e => console.error("Erro ao salvar:", e));
+                body: JSON.stringify({ mesa: key, cor: cor, status: status })
+            });
         }
 
-        function fecharMenus() {
-            document.querySelectorAll('.menu-cores').forEach(m => m.remove());
-        }
-
-        document.addEventListener('click', fecharMenus);
+        function fecharMenus() { document.querySelectorAll('.menu-cores').forEach(m => m.remove()); }
+        document.onclick = fecharMenus;
 
         iniciarSistema();
     </script>
 </body>
 </html>
-
-
-
-
-
