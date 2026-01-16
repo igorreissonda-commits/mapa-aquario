@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa de Assentos - Gestão Inteligente</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;900&display=swap" rel="stylesheet">
+    <style>
+        /* --- ESTILOS GERAIS --- */
+        body { 
+            font-family: 'Roboto', sans-serif; 
+            color: white; 
+            text-align: center; 
+            padding: 20px; 
+            background-color: #111; 
+            /* MUDANÇA AQUI: Usando a imagem da noite como fundo principal */
+            background-image: url('noite.jpg'); 
+            background-size: cover; 
+            background-position: center; 
+            background-repeat: no-repeat;
+            background-attachment: fixed; /* Fixo fica melhor para paisagens */
+            margin: 0; 
+            min-height: 100vh;
+        }
+
+        h1 { font-size: 2.2rem; margin-bottom: 20px; font-weight: 800; text-shadow: 3px 3px 5px #000; }
+        
+        #status-bar {
+            background-color: rgba(0,0,0,0.85); 
+            padding: 15px; 
+            border-radius: 15px; 
+            display: inline-block; 
+            margin-bottom: 30px; 
+            border: 1px solid #555;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            position: sticky;
+            top: 10px;
+            z-index: 1000;
+        }
+
+        #nome-usuario { font-weight: bold; font-size: 1.1rem; margin-right: 15px; }
+
+        /* --- LEGENDAS --- */
+        .legenda-box { 
+            background: rgba(0,0,0,0.9); 
+            padding: 10px 20px; 
+            border-radius: 8px; 
+            margin: 0 auto 30px auto; 
+            border: 1px solid #777; 
+            text-align: center; 
+            max-width: 800px; 
+            display: none; 
+        }
+        .legenda-item { display: inline-flex; align-items: center; margin: 5px 15px; font-size: 0.9rem; }
+        .box-sample { width: 18px; height: 18px; margin-right: 8px; border-radius: 4px; border: 1px solid #aaa; }
+
+        /* --- BLOCOS (Layout Vertical) --- */
+        .bloco-container { 
+            display: block; 
+            margin: 40px auto; 
+            background: rgba(0,0,0,0.7); /* Um pouco mais escuro para ler os números */
+            padding: 30px; 
+            border-radius: 20px;
+            max-width: 700px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .bloco-titulo { font-size: 2rem; margin-bottom: 25px; font-weight: 900; letter-spacing: 1px; }
+        
+        .grid-mesas { 
+            display: grid; 
+            grid-template-columns: repeat(5, 1fr); 
+            gap: 15px; 
+            justify-content: center; 
+        }
+        
+        /* --- MESAS --- */
+        .mesa { 
+            background-color: rgba(60, 60, 60, 0.95); 
+            border: 2px solid #555; 
+            width: 65px; height: 65px; 
+            display: flex; align-items: center; justify-content: center; flex-direction: column; 
+            font-size: 1.3rem; font-weight: bold;
+            cursor: pointer; 
+            border-radius: 10px; 
+            position: relative; 
+            box-shadow: 3px 3px 8px rgba(0,0,0,0.6);
+            transition: transform 0.2s, border-color 0.2s;
+            margin: auto;
+        }
+        .mesa:hover { transform: scale(1.1); z-index: 10; border-color: #fff; }
+        .mesa.bloqueada { cursor: default; transform: none; }
+        .mesa.bloqueada:hover { border-color: #555; }
+
+        /* BORDAS ESPECIAIS (Visíveis para Admin e Gestão) */
+        .borda-permitido { border: 4px solid #00ff00 !important; } 
+        .borda-proibido { border: 4px solid #ff0000 !important; } 
+
+        /* Botão de Limpar (X) */
+        .btn-limpar { 
+            position: absolute; top: -5px; right: -5px;
+            background-color: #d32f2f; color: white; 
+            border: 1px solid white; 
+            width: 20px; height: 20px; 
+            font-size: 0.7rem; line-height: 18px;
+            cursor: pointer; border-radius: 50%; 
+            display: none; z-index: 20;
+        }
+
+        /* --- MENU DE CORES (POPUP) --- */
+        .menu-cores { 
+            display: flex; 
+            position: absolute; 
+            background: rgba(0,0,0,0.95); 
+            padding: 10px; 
+            border-radius: 30px; 
+            z-index: 100; 
+            top: -60px; left: 50%; transform: translateX(-50%); 
+            border: 2px solid white; 
+            box-shadow: 0 5px 20px black; 
+        }
+        .opcao-cor { 
+            width: 35px; height: 35px; 
+            margin: 0 5px; 
+            border-radius: 50%; 
+            cursor: pointer; 
+            border: 2px solid #ddd; 
+            transition: transform 0.2s; 
+        }
+        .opcao-cor:hover { transform: scale(1.2); border-color: white; }
+        
+        /* Cores utilitárias */
+        .bg-green { background-color: #28a745; } 
+        .bg-red { background-color: #dc3545; } 
+        .bg-yellow { background-color: #ffc107; }
+
+        /* --- TELA DE LOGIN E LOADING (MODIFICADO) --- */
+        #tela-login, #tela-loading { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            /* MUDANÇA AQUI: Fundo bem mais claro (0.4) e menos desfoque (4px) */
+            background: rgba(0, 0, 0, 0.4); 
+            backdrop-filter: blur(4px); 
+            -webkit-backdrop-filter: blur(4px);
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; 
+            z-index: 9999; 
+        }
+        #tela-login { display: none; } 
+        
+        /* Container do formulário */
+        .login-container {
+            /* Fundo do container mais transparente também */
+            background: rgba(0, 0, 0, 0.5);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        .input-login { 
+            padding: 15px; font-size: 1.1rem; margin-bottom: 15px; 
+            text-align: center; border-radius: 8px; border: none; width: 280px; 
+            background: rgba(255,255,255,0.95); color: #333;
+        }
+        .btn-action { 
+            padding: 12px 30px; font-size: 1rem; cursor: pointer; 
+            border-radius: 8px; border: none; font-weight: bold; 
+            transition: opacity 0.3s, transform 0.2s;
+        }
+        .btn-entrar { background-color: #4CAF50; color: white; margin-top: 10px; width: 100%; }
+        .btn-sair { background-color: #d32f2f; color: white; }
+        .btn-action:hover { opacity: 0.9; transform: scale(1.02); }
+
+    </style>
+</head>
+<body>
+
+    <div id="tela-loading">
+        <h2>Conectando ao Banco de Dados...</h2>
+        <p style="color: #fff; font-weight: bold;">Aguarde um momento.</p>
+    </div>
+
+    <div id="tela-login">
+        <div class="login-container">
+            <h2 style="margin-bottom: 25px; text-shadow: 2px 2px 4px black; font-size: 1.8rem;">Acesso Restrito</h2>
+            <input type="text" id="user" class="input-login" placeholder="Usuário">
+            <input type="password" id="pass" class="input-login" placeholder="Senha">
+            <button onclick="fazerLogin()" class="btn-action btn-entrar">ENTRAR</button>
+            <p id="erro-login" style="color: #ff6b6b; margin-top: 15px; display: none; font-weight: bold; text-shadow: 1px 1px 2px black;">Credenciais inválidas.</p>
+        </div>
+    </div>
+
+    <div id="app-principal" style="display: none;">
+        <h1>Mapa de Assentos - Aquário</h1>
+        
+        <div id="status-bar">
+            <span id="nome-usuario"></span>
+            <button onclick="location.reload()" class="btn-action btn-sair" style="padding: 5px 15px; font-size: 0.8rem;">SAIR</button>
+        </div>
+
+        <div id="legenda-admin" class="legenda-box">
+            <strong style="display:block; margin-bottom:10px; color: #4CAF50;">MODO DE EDIÇÃO</strong>
+            <div class="legenda-item"><div class="box-sample bg-green"></div> Fundo: Definição do Admin</div>
+            <div class="legenda-item"><div class="box-sample" style="border: 4px solid #ff0000; background: #333;"></div> Borda: Gestão PROIBIU</div>
+            <div class="legenda-item"><div class="box-sample" style="border: 4px solid #00ff00; background: #333;"></div> Borda: Gestão PERMITIU</div>
+        </div>
+
+        <div id="legenda-visitante" class="legenda-box">
+            <strong style="display:block; margin-bottom:10px; color: #FFC107;">VISÃO DE VISITANTE</strong>
+            <div class="legenda-item"><div class="box-sample bg-green"></div> Formatado</div>
+            <div class="legenda-item"><div class="box-sample bg-red"></div> Não Formatado</div>
+            <div class="legenda-item"><div class="box-sample bg-yellow"></div> Sem Atendimento</div>
+        </div>
+
+        <div class="bloco-container">
+            <div class="bloco-titulo">Bloco 1</div>
+            <div class="grid-mesas" id="bloco1"></div>
+        </div>
+
+        <div class="bloco-container">
+            <div class="bloco-titulo">Bloco 2</div>
+            <div class="grid-mesas" id="bloco2"></div>
+        </div>
+
+        <div class="bloco-container">
+            <div class="bloco-titulo">Bloco 3</div>
+            <div class="grid-mesas" id="bloco3"></div>
+        </div>
+    </div>
+
+    <script>
+        // ======================================================
+        // CONFIGURAÇÃO
+        // ======================================================
+        const URL_API = "https://script.google.com/macros/s/AKfycby41mDV3a-yw5HSEyRPvBg1IDEQSLqW4JE9wbcRr6I-Ou_Apb10uFPW03FwbY5vs7A9/exec"; 
+        
+        const mesasB1 = [70, 71, 72, 73, 74, 85, 86, 87, 88, 89, 100, 101, 102, 103, 104, 109, 108, 107, 106, 105];
+        const mesasB2 = [65, 66, 67, 68, 69, 80, 81, 82, 83, 84, 95, 96, 97, 98, 99, 114, 113, 112, 111, 110];
+        const mesasB3 = [60, 61, 62, 63, 64, 75, 76, 77, 78, 79, 90, 91, 92, 93, 94, 119, 118, 117, 116, 115];
+
+        let dadosDB = {}; 
+        let perfilUsuario = ""; // 'admin', 'gestao', 'visitante'
+
+        // --- INICIALIZAÇÃO ---
+        async function iniciarSistema() {
+            try {
+                const resp = await fetch(URL_API);
+                if (!resp.ok) throw new Error("Erro HTTP");
+                dadosDB = await resp.json();
+                console.log("Dados carregados:", dadosDB);
+                
+                document.getElementById('tela-loading').style.display = 'none';
+                document.getElementById('tela-login').style.display = 'flex';
+            } catch (err) {
+                alert("Erro ao conectar na planilha. Tente atualizar a página.");
+            }
+        }
+
+        // --- SISTEMA DE LOGIN ---
+        function fazerLogin() {
+            const u = document.getElementById('user').value.trim().toLowerCase();
+            const p = document.getElementById('pass').value;
+            const labelUser = document.getElementById('nome-usuario');
+            const boxAdmin = document.getElementById('legenda-admin');
+            const boxVisit = document.getElementById('legenda-visitante');
+
+            // Reset
+            boxAdmin.style.display = 'none';
+            boxVisit.style.display = 'none';
+
+            if (u === "admin" && p === "Sogodajuda") {
+                perfilUsuario = "admin";
+                labelUser.innerHTML = "🛠️ ADMINISTRADOR";
+                labelUser.style.color = "#4CAF50";
+                boxAdmin.style.display = 'block';
+            } 
+            else if (u === "gestão natura" && p === "Natura26") {
+                perfilUsuario = "gestao";
+                labelUser.innerHTML = "👤 GESTÃO NATURA";
+                labelUser.style.color = "#00bcd4";
+                boxAdmin.style.display = 'block'; 
+            } 
+            else if (u === "visitante" && p === "visitaae") {
+                perfilUsuario = "visitante";
+                labelUser.innerHTML = "👀 VISITANTE";
+                labelUser.style.color = "#FFC107";
+                boxVisit.style.display = 'block';
+            } 
+            else {
+                document.getElementById('erro-login').style.display = 'block';
+                return;
+            }
+
+            document.getElementById('tela-login').style.display = 'none';
+            document.getElementById('app-principal').style.display = 'block';
+            renderizarMesas();
+        }
+
+        // --- RENDERIZAÇÃO ---
+        function renderizarMesas() {
+            criarBloco("bloco1", mesasB1);
+            criarBloco("bloco2", mesasB2);
+            criarBloco("bloco3", mesasB3);
+        }
+
+        function criarBloco(idDiv, listaMesas) {
+            const container = document.getElementById(idDiv);
+            container.innerHTML = "";
+
+            listaMesas.forEach(num => {
+                const mesa = document.createElement('div');
+                mesa.className = 'mesa';
+                mesa.innerText = num;
+
+                // --- RECUPERAR DADOS ---
+                const infoAdmin = dadosDB[num];
+                const infoGestao = dadosDB["G_" + num];
+
+                // 1. COR DE FUNDO (STATUS OPERACIONAL - ADMIN)
+                if (infoAdmin && infoAdmin.status !== 'LIVRE') {
+                    mesa.style.backgroundColor = infoAdmin.cor;
+                }
+
+                // 2. BORDAS (REGRAS - GESTÃO)
+                if ((perfilUsuario === 'admin' || perfilUsuario === 'gestao') && infoGestao) {
+                    if (infoGestao.status === 'Permitido') mesa.classList.add('borda-permitido');
+                    if (infoGestao.status === 'Proibido') mesa.classList.add('borda-proibido');
+                }
+
+                // 3. BOTÃO DE LIMPAR (X)
+                const btnX = document.createElement('div');
+                btnX.className = 'btn-limpar';
+                btnX.innerText = 'X';
+                mesa.appendChild(btnX);
+
+                // Admin vê X se tiver cor de fundo
+                if (perfilUsuario === 'admin' && infoAdmin && infoAdmin.status !== 'LIVRE') {
+                    btnX.style.display = 'block';
+                }
+                // Gestão vê X se tiver regra de gestão
+                if (perfilUsuario === 'gestao' && infoGestao && infoGestao.status !== 'LIVRE') {
+                    btnX.style.display = 'block';
+                }
+
+                // 4. INTERAÇÃO
+                if (perfilUsuario === 'visitante') {
+                    mesa.classList.add('bloqueada');
+                } else {
+                    // Clique no X (Apagar dados)
+                    btnX.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        fecharMenus();
+                        
+                        let key = (perfilUsuario === 'gestao') ? "G_" + num : num;
+                        salvarDados(key, "transparent", "LIVRE");
+                        
+                        delete dadosDB[key];
+                        btnX.style.display = 'none';
+                        
+                        // Se for admin, limpa o fundo
+                        if (perfilUsuario === 'admin') {
+                            mesa.style.backgroundColor = 'rgba(60, 60, 60, 0.95)';
+                        }
+                        // Se for gestão, remove a classe da borda
+                        if (perfilUsuario === 'gestao') {
+                            mesa.classList.remove('borda-permitido', 'borda-proibido');
+                        }
+                    });
+
+                    // Clique na Mesa (Abrir Menu)
+                    mesa.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (e.target === btnX) return;
+                        fecharMenus();
+                        abrirMenu(mesa, num, btnX);
+                    });
+                }
+
+                container.appendChild(mesa);
+            });
+        }
+
+        function abrirMenu(elementoMesa, numero, btnX) {
+            const menu = document.createElement('div');
+            menu.className = 'menu-cores';
+
+            let opcoes = [];
+            
+            if (perfilUsuario === 'gestao') {
+                opcoes = [
+                    { cls: 'bg-green', hex: '#28a745', txt: 'Permitido' },
+                    { cls: 'bg-red', hex: '#dc3545', txt: 'Proibido' }
+                ];
+            } else if (perfilUsuario === 'admin') {
+                opcoes = [
+                    { cls: 'bg-green', hex: '#28a745', txt: 'Formatado' },
+                    { cls: 'bg-red', hex: '#dc3545', txt: 'Não formatado' },
+                    { cls: 'bg-yellow', hex: '#ffc107', txt: 'Sem Atendimento' }
+                ];
+            }
+
+            opcoes.forEach(opt => {
+                const bolinha = document.createElement('div');
+                bolinha.className = 'opcao-cor ' + opt.cls;
+                bolinha.title = opt.txt;
+                
+                bolinha.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    
+                    let key = (perfilUsuario === 'gestao') ? "G_" + numero : numero;
+                    
+                    // Salva no banco
+                    salvarDados(key, opt.hex, opt.txt);
+                    
+                    // Atualiza memória local
+                    dadosDB[key] = { cor: opt.hex, status: opt.txt };
+
+                    // ATUALIZAÇÃO VISUAL IMEDIATA
+                    if (perfilUsuario === 'admin') {
+                        // Admin muda o fundo
+                        elementoMesa.style.backgroundColor = opt.hex;
+                    } else if (perfilUsuario === 'gestao') {
+                        // Gestão muda a borda (remove as antigas antes)
+                        elementoMesa.classList.remove('borda-permitido', 'borda-proibido');
+                        if (opt.txt === 'Permitido') elementoMesa.classList.add('borda-permitido');
+                        if (opt.txt === 'Proibido') elementoMesa.classList.add('borda-proibido');
+                    }
+                    
+                    btnX.style.display = 'block';
+                    fecharMenus();
+                });
+
+                menu.appendChild(bolinha);
+            });
+
+            elementoMesa.appendChild(menu);
+        }
+
+        function salvarDados(key, cor, status) {
+            dadosDB[key] = { cor: cor, status: status };
+            fetch(URL_API, {
+                method: "POST",
+                mode: "no-cors",
+                body: JSON.stringify({ mesa: key, cor: cor, status: status }),
+                headers: { "Content-Type": "application/json" }
+            }).catch(e => console.error("Erro ao salvar:", e));
+        }
+
+        function fecharMenus() {
+            document.querySelectorAll('.menu-cores').forEach(m => m.remove());
+        }
+
+        document.addEventListener('click', fecharMenus);
+
+        iniciarSistema();
+    </script>
+</body>
+</html>
